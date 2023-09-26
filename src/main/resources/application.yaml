@@ -1,0 +1,184 @@
+server:
+  port: 0
+spring:
+  application:
+    name: ${CLUSTER_ID}
+  jackson:
+    serialization:
+      FAIL_ON_EMPTY_BEANS: false
+    default-property-inclusion: NON_NULL
+redis:
+  type : single
+  host: ${REDIS_HOST}
+  port: ${REDIS_PORT}
+  user : default
+  password: ${REDIS_PASSWORD}
+  sentinelEnable: ${REDIS_SENTINEL_ENABLE}
+  sentinelMasterName: ${REDIS_SENTINEL_MASTER_NAME}
+  sentinelUrls: ${REDIS_SENTINEL_URLS}
+  sentinelPassword: ${REDIS_SENTINEL_PASSWORD}
+#  redis:
+#    type: single
+#    host: 127.0.0.1
+#    port: 36379
+#    username: default
+#    password: GnmRuAjJMQzglLx
+logging:
+  file:
+    name: /logs/application.log
+  level:
+    root: WARN
+    org.springframework.web: DEBUG
+    com.ftl: INFO
+  pattern:
+    file: "%d{yyyy-MM-dd HH:mm:ss} %-5p %C %M %L - %m%n"
+    console: "%d{yyyy-MM-dd HH:mm:ss} %-5p %C{1} %M %L - %m%n"
+
+app:
+  kafkaUrl: ${KAFKA_URLS}
+  clusterId: ${CLUSTER_ID}
+  kafkaTimeout: 15000
+  kafkaPartitions: ${KAFKA_PARTITION}
+  instanceId: ${CLUSTER_ID}_${NODE_ID}_${INSTANCE_ID}
+  coreSocketUri: ${CORE_SOCKET_URI}
+  reconnectionDelay: ${RECONNECTION_DELAY}
+  env: ${ENV}
+  priceChannel: ${PRICE_CHANNEL}
+  topics:
+    corePrice: ${PRICE_TOPIC}
+    naviBridge: "navi-bridge"
+    quote: "market.quote"
+    bidoffer: "market.bidoffer"
+    extra: "market.extra"
+    marketStatus: "market.status"
+    marketInit: "market.init"
+    discover: "discover-service"
+    stockDetailService: "stock-detail-service"
+    commonApi: "common-service"
+  channels:
+    quote: "market.quote"
+    bidoffer: "market.bidoffer"
+    extra: "market.extra"
+    marketStatus: "market.status"
+    marketInit: "market.init"
+  socketCluster:
+    enable: ${SOCKET_CLUSTER_ENABLE}
+    secure: ${SOCKET_CLUSTER_SECURE}
+    hostname: ${SOCKET_CLUSTER_HOST}
+    port: ${SOCKET_CLUSTER_PORT}
+    path: ${SOCKET_CLUSTER_PATH}
+    autoReconnection: true
+    logMessage: true
+  fileUploads:
+    symbolStaticFile: market/symbol.json
+    expectPrice: market/symbol-expected-price.json
+    fiinStatic: market/fiin_static.json
+  urlSymbolStatic: ${MINIO_URL}${MINIO_BUCKET_NAME}/${app.fileUploads.symbolStaticFile}
+  minio:
+    bucketName: ${MINIO_BUCKET_NAME}
+    endpoint: ${MINIO_ENDPOINT}
+    port: ${MINIO_PORT}
+    accessKey: ${MINIO_ACCESS_KEY}
+    secretKey: ${MINIO_SECRET_KEY}
+    useSSL: ${MINIO_USE_SSL}
+    bucketPolicy: >
+      {"Version":"2012-10-17","Statement":[{"Effect":"Allow","Principal":{"AWS":["*"]},"Action":["s3:GetBucketLocation"],"Resource":["arn:aws:s3:::report"]},{"Effect":"Allow","Principal":{"AWS":["*"]},"Action":["s3:GetObject"],"Resource":["arn:aws:s3:::report/*"]}]}
+
+  schedulers:
+    wsAggrEnabled: ${WS_BATCH_ENABLED}
+
+
+
+
+    #    initSymbol: "0 0/5 * * * *"
+
+    checkReceiveAuto1: "0/10 2-59 9 * * MON-FRI"
+    checkReceiveAuto2: "0/10 * 10 * * MON-FRI"
+    checkReceiveAuto3: "0/10 0-28 11 * * MON-FRI"
+    checkReceiveAuto4: "0/10 2-59 13 * * MON-FRI"
+    checkReceiveAuto5: "0/10 0-30 14 * * MON-FRI"
+  holidays:
+    - 20220101
+    - 20220103
+    - 20220131
+    - 20220201
+    - 20220202
+    - 20220203
+    - 20220204
+    - 20220411
+    - 20220502
+    - 20220503
+    - 20220901
+    - 20220902
+    - 20230101
+    - 20230102
+    - 20230120
+    - 20230121
+    - 20230122
+    - 20230123
+    - 20230124
+    - 20230125
+    - 20230126
+    - 20230429
+    - 20230430
+    - 20230501
+    - 20230502
+    - 20230503
+    - 20230901
+    - 20230902
+    - 20230903
+    - 20230904
+  highlightMap:
+    VN: 1
+    VN30: 2
+    HNX: 3
+    HNX30: 4
+    UPCOM: 5
+  timeIgnoreBidAskChange:
+    startTime: "084500"
+    endTime: "234500"
+schedule:
+  enabled: true
+NODE_ID: 1
+INSTANCE_ID: 1
+ENV: dev
+KAFKA_URLS: 127.0.0.1:9092
+CLUSTER_ID: emulator-socket
+
+SOCKET_CLUSTER_ENABLE: true
+WEB_SOCKET_URI: ws://127.0.0.1:38001/socketcluster/
+
+REDIS_HOST: 127.0.0.1
+REDIS_PORT: 36379
+REDIS_PASSWORD: GnmRuAjJMQzglLx
+SOCKET_CLUSTER_PATH : /socketcluster/
+MONGO_HOST: 127.0.0.1
+MONGO_PORT: 17017
+MONGO_MARKET_USER: market
+MONGO_MARKET_PASSWORD: s59PFm)u4WNHrZge
+MONGODB_MARKET_DATABASE: grooo-market
+
+
+SOCKET_CLUSTER_SECURE: false
+SOCKET_CLUSTER_PORT: 38001
+SOCKET_CLUSTER_HOST : 127.0.0.1:38001
+MONGODB_MARKET_ENDPOINT : mongodb://market:s59PFm)u4WNHrZge@127.0.0.1:17017/grooo-market
+PRICE_CHANNEL : kafka
+
+KAFKA_PARTITION : 3
+PRICE_TOPIC : MARKETDATA
+WS_BATCH_INTERVAL : 10000
+WS_BATCH_ENABLED : false
+
+CORE_SOCKET_URI : ws://127.0.0.1:35000/ws
+
+
+MINIO_ENDPOINT : 127.0.0.1
+MINIO_PORT : 9000
+MINIO_ACCESS_KEY : TAFtpPcP1bv9UXwG
+MINIO_SECRET_KEY : zuQpu2nBTntmnpkrV9LcecEC5m8zA7FL
+MINIO_USE_SSL : false
+MINIO_BUCKET_UPLOAD : public
+MINIO_BUCKET_NAME  : public
+RECONNECTION_DELAY : 5000
+REDIS_SENTINEL_ENABLE : false

@@ -1,0 +1,88 @@
+stages:
+  - init
+  - build
+  - package_image
+  - deploy_dev
+  - sonarqube
+
+init:
+  stage: init
+  script:
+    - echo "init"
+  tags:
+    - exec-shell
+  only:
+    refs:
+      - main
+      - develop
+    changes:
+      - .docker/VERSION
+
+build:
+  stage: build
+  image: harbor.finavi.com.vn/backend/common-java:1.0.1
+  script:
+    - mvn clean package
+  artifacts:
+    paths:
+      - target
+  tags:
+    - exec-docker
+  only:
+    refs:
+      - main
+      - develop
+    changes:
+      - .docker/VERSION
+
+package_image:
+  stage: package_image
+  script:
+    - export VERSION=$(cat .docker/VERSION)
+    - docker build -f .docker/Dockerfile -t $VERSION .
+    - docker image tag $VERSION $VERSION
+    - docker image push $VERSION
+  tags:
+    - exec-shell
+  only:
+    refs:
+      - main
+      - develop
+    changes:
+      - .docker/VERSION
+   
+deploy_dev:
+  stage: deploy_dev
+  script:
+    - $RESTART_SERVICE
+  tags:
+    - exec-shell
+  only:
+    refs:
+      - main
+      - develop
+    changes:
+      - .docker/VERSION
+
+sonarqube:
+  stage: sonarqube
+  image:
+    name: sonarsource/sonar-scanner-cli:latest
+    entrypoint: [""]
+  variables:
+    SONAR_USER_HOME: "${CI_PROJECT_DIR}/.sonar"  # Defines the location of the analysis task cache
+    GIT_DEPTH: "0"  # Tells git to fetch all the branches of the project, required by the analysis task
+  cache:
+    key: "${CI_JOB_NAME}"
+    paths:
+      - .sonar/cache
+  script:
+    - whoami
+    - /home/grooo/sonarcube/sonar-scanner/bin/sonar-scanner -X -Dsonar.login=$SONAR_TOKEN
+    # - mvn verify sonar:sonar -Dsonar.projectKey=common-java
+  allow_failure: true
+  tags:
+    - exec-shell
+  only:
+    variables:
+      - $CI_COMMIT_MESSAGE =~ /\[sonarqube\]/
